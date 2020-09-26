@@ -35,6 +35,17 @@ class Map {
     }
 }
 
+class Player {
+    x;
+    y;
+    radius;
+    turnDirection = 0; // -1 for left, +1 for right 
+    walkDirection = 0; // -1 for backword, +1 for forward 
+    rotationAngel = Math.PI / 2;
+    moveSpeed = 3.0;
+    rotationSpeed = 3 * (Math.PI / 180);
+}   
+
 var grid = new Map();
 
 function setup() {
