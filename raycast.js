@@ -28,10 +28,10 @@ class Map {
 	isWall(x, y)
 	{
 		if (x < 0 || x > WINDOW_WIDTH || y < 0 || y > WINDOW_HEIGHT)
-			return (false);
+			return (true);
 		var gridIndexX = Math.floor(x / TILE_SIZE);
 		var gridIndexY = Math.floor(y / TILE_SIZE);
-		return (this.grid[gridIndexY][gridIndexX] == 1 ? false : true);
+		return this.grid[gridIndexY][gridIndexX] != 0 ? true : false;
 	}
 	render() {
 		for (var i = 0; i < MAP_NUM_ROWS; i++) {
@@ -64,7 +64,7 @@ class Player {
 		var newPositionX = this.x + this.walkDirection * this.moveSpeed * Math.cos(this.rotationAngel);
 		var newPositionY = this.y + this.walkDirection * this.moveSpeed * Math.sin(this.rotationAngel);
 		this.rotationAngel += this.turnDirection * this.rotationSpeed;
-		if (grid.isWall(newPositionX, newPositionY) == true) {
+		if (grid.isWall(newPositionX, newPositionY) == false) {
 			this.x = newPositionX;
 			this.y = newPositionY;
 		}
@@ -74,14 +74,14 @@ class Player {
 		noStroke();
 		fill("green");
 		circle(this.x, this.y, this.radius);
-		stroke("red");
-		line(this.x, this.y, this.x + Math.cos(this.rotationAngel) * 30, this.y + Math.sin(this.rotationAngel) * 30);
+	//	stroke("red");
+	//	line(this.x, this.y, this.x + Math.cos(this.rotationAngel) * 30, this.y + Math.sin(this.rotationAngel) * 30);
 	}
 }   
 
 class Ray {
 	constructor(rayAngle){
-		this.angle = normalizeAngel(rayAngle);
+		this.angle = normalizeAngle(rayAngle);
 		this.wallHitX = 0;
 		this.wallHitY = 0;
 		this.distance = 0;
@@ -93,19 +93,45 @@ class Ray {
 	cast(columnId) {
 //		console.log(">", this.pointRight); //check
 //		console.log("V", this.pointDown);
+		var foundHorzWallHit = false;
+        var wallHitX = 0;
+        var wallHitY = 0;
 		var xstep;
 		var ystep;	// delta y and delta z
 		var xintercept;	// closest interception with the grid
 		var yintercept;
 		// Find the y-coordinate of the closest horizontal grid intersenction
 		yintercept = Math.floor(player.y / TILE_SIZE) * TILE_SIZE; // 64.45 -> 2.0140 -> 2 -> 2 * 32 -> 64
-		yintercept += this.pointDown ? 32 : 0; // increase by 32 if ray points down
+		yintercept += this.pointDown ? TILE_SIZE : 0; // increase by 32 if ray points down
 		// Find the x-coordinate of the closest horizontal grid intersection
-		xintercept = player.x + (yintercept - player.y) / Math.tan(this.rayAngle);
+		xintercept = player.x + (yintercept - player.y) / Math.tan(this.angle);
 		ystep = TILE_SIZE;
 		ystep *= this.pointUp ? -1 : 1; // increment or decrement
-		xstep = ystep / Math.tan(this.angle);
-		xstep *= this.pointRight ? -1 : 1;
+
+		xstep = TILE_SIZE / Math.tan(this.angle);
+        xstep *= (this.pointLeft && xstep > 0) ? -1 : 1;
+        xstep *= (this.pointRight && xstep < 0) ? -1 : 1;
+
+		var nextHorzTouchX = xintercept;
+        var nextHorzTouchY = yintercept;
+
+      if (this.pointUp)
+          nextHorzTouchY -= 1;
+		// Increment xstep and ystep until we find a wall
+        while (foundHorzWallHit == false) {
+            if (grid.isWall(nextHorzTouchX, nextHorzTouchY)) {
+                foundHorzWallHit = true;
+                wallHitX = nextHorzTouchX;
+                wallHitY = nextHorzTouchY;
+                
+                stroke("blue");
+                line(player.x, player.y, wallHitX, wallHitY);
+                break;
+            } else {
+                nextHorzTouchX += xstep;
+                nextHorzTouchY += ystep;
+            }
+        }
 	}
 	render() {
 		stroke("grey");
@@ -143,7 +169,7 @@ function keyReleased()
 	}
 }
 
-function normalizeAngel(angle) {
+function normalizeAngle(angle) {
 	angle = angle % (2 * Math.PI);
 	if (angle < 0)
 		angle = angle + (2 * Math.PI);
@@ -170,13 +196,14 @@ function castRays() {
 
 function update() {
 		player.update();
-		castRays();
+//		castRays();
 }
 
 function draw() {
 	update();
 	grid.render();
-	for (ray of rays)
-		ray.render();
+//	for (ray of rays)
+//		ray.render();
 	player.render();
+	castRays();
 }
