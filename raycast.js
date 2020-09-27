@@ -81,7 +81,31 @@ class Player {
 
 class Ray {
 	constructor(rayAngle){
-		this.angle = rayAngle;
+		this.angle = normalizeAngel(rayAngle);
+		this.wallHitX = 0;
+		this.wallHitY = 0;
+		this.distance = 0;
+		this.pointDown = this.angle > 0 && this.angle < Math.PI;
+		this.pointUp = !this.pointDown;
+		this.pointLeft = this.angle > Math.PI / 2 && this.angle < (Math.PI * 3) / 2;
+		this.pointRight = !this.pointLeft;
+	}
+	cast(columnId) {
+//		console.log(">", this.pointRight); //check
+//		console.log("V", this.pointDown);
+		var xstep;
+		var ystep;	// delta y and delta z
+		var xintercept;	// closest interception with the grid
+		var yintercept;
+		// Find the y-coordinate of the closest horizontal grid intersenction
+		yintercept = Math.floor(player.y / TILE_SIZE) * TILE_SIZE; // 64.45 -> 2.0140 -> 2 -> 2 * 32 -> 64
+		yintercept += this.pointDown ? 32 : 0; // increase by 32 if ray points down
+		// Find the x-coordinate of the closest horizontal grid intersection
+		xintercept = player.x + (yintercept - player.y) / Math.tan(this.rayAngle);
+		ystep = TILE_SIZE;
+		ystep *= this.pointUp ? -1 : 1; // increment or decrement
+		xstep = ystep / Math.tan(this.angle);
+		xstep *= this.pointRight ? -1 : 1;
 	}
 	render() {
 		stroke("grey");
@@ -119,6 +143,13 @@ function keyReleased()
 	}
 }
 
+function normalizeAngel(angle) {
+	angle = angle % (2 * Math.PI);
+	if (angle < 0)
+		angle = angle + (2 * Math.PI);
+	return (angle);
+}
+
 function setup() {
 	createCanvas(WINDOW_WIDTH, WINDOW_HEIGHT);
 }
@@ -130,6 +161,7 @@ function castRays() {
 	for (columnId = 0; columnId < NUM_RAYS; columnId++)
 	{
 		var ray = new Ray(rayAngle);
+		ray.cast(columnId);
 		rays.push(ray);
 		rayAngle += FOV_ANGLE / NUM_RAYS;
 	}
