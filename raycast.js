@@ -91,11 +91,8 @@ class Ray {
 		this.pointRight = !this.pointLeft;
 	}
 	cast(columnId) {
-//		console.log(">", this.pointRight); //check
-//		console.log("V", this.pointDown);
-		var foundWallHit = false;
-        var wallHitX = 0;
-        var wallHitY = 0;
+		var foundHorWallHit = false;
+		var foundVertWallHit = false;
 		var xstep;
 		var ystep;	// delta y and delta z
 		var xintercept;	// closest interception with the grid
@@ -113,61 +110,64 @@ class Ray {
         xstep *= (this.pointRight && xstep < 0) ? -1 : 1; // -x -> +x if ray points up and right
 
 		var nextHorzTouchX = xintercept;
-        var nextHorzTouchY = yintercept;
+		var nextHorzTouchY = yintercept;
+		var horWallHitX = 0;
+		var horWallHitY = 0;
 
       if (this.pointUp)
           nextHorzTouchY -= 1;
 		// Increment xstep and ystep until we find a wall
-        while (foundWallHit == false) {
+        while (foundHorWallHit == false) {
             if (grid.isWall(nextHorzTouchX, nextHorzTouchY)) {
-                foundWallHit = true;
-                wallHitX = nextHorzTouchX;
-                wallHitY = nextHorzTouchY;
-                
-                stroke("blue");
-                line(player.x, player.y, wallHitX, wallHitY);
+                foundHorWallHit = true;
+                horWallHitX = nextHorzTouchX;
+                horWallHitY = nextHorzTouchY;
                 break;
             } else {
                 nextHorzTouchX += xstep;
                 nextHorzTouchY += ystep;
             }
-        }
-		
-		foundWallHit = false;
-		// Find the y-coordinate of the closest horizontal grid intersenction
-		xintercept = Math.floor(player.x / TILE_SIZE) * TILE_SIZE; // 64.45 -> 2.0140 -> 2 -> 2 * 32 -> 64
+		}
+		// Find the x-coordinate of the closest vertical grid intersenction
+		xintercept = Math.floor(player.x / TILE_SIZE) * TILE_SIZE; // if a is a float value, floor(a) will take the minimal integer value 
 		xintercept += this.pointRight ? TILE_SIZE : 0; // increase by 32 if ray points down
-		// Find the x-coordinate of the closest horizontal grid intersection
+		// Find the y-coordinate of the closest vertical grid intersection
 		yintercept = player.y + (xintercept - player.x) * Math.tan(this.angle);
+		
 		xstep = TILE_SIZE;
 		xstep *= this.pointLeft ? -1 : 1; // increment or decrement
-
 		ystep = TILE_SIZE * Math.tan(this.angle);
         ystep *= (this.pointUp && ystep > 0) ? -1 : 1; // +y -> -y if the ray points up and right (go up)
         ystep *= (this.pointDown && ystep < 0) ? -1 : 1; // -y -> y if the ray points down and left (go down)
 
 		var nextVertTouchX = xintercept;
-        var nextVertTouchY = yintercept;
+		var nextVertTouchY = yintercept;
+		var vertWallHitX = 0;
+		var vertWallHitY = 0;
 
       if (this.pointLeft)
           nextVertTouchX -= 1;
 		// Increment xstep and ystep until we find a wall
-        while (foundWallHit == false) {
+        while (foundVertWallHit == false) {
             if (grid.isWall(nextVertTouchX, nextVertTouchY)) {
-                foundWallHit = true;
-                wallHitX = nextVertTouchX;
-                wallHitY = nextVertTouchY;
-                
-                stroke("green");
-                line(player.x, player.y, wallHitX, wallHitY);
+                foundVertWallHit = true;
+                vertWallHitX = nextVertTouchX;
+                vertWallHitY = nextVertTouchY;
                 break;
             } else {
                 nextVertTouchX += xstep;
                 nextVertTouchY += ystep;
             }
-        }
+		}
+	// claculate the vertical and the horizontal hit distancise and choose the shortest
+	var horHitDistance = (foundHorWallHit) ? calculateDistance(player.x, player.y, horWallHitX, horWallHitY) : Number.MAX_VALUE;
+	var vertHitDistance = (foundVertWallHit) ? calculateDistance(player.x, player.y, vertWallHitX, vertWallHitY) : Number.MAX_VALUE;
+	this.wallHitX = (horHitDistance < vertHitDistance) ? horWallHitX : vertWallHitX;
+	this.wallHitY = (horHitDistance < vertHitDistance) ? horWallHitY : vertWallHitY;
+	this.distance = (horHitDistance < vertHitDistance) ? horHitDistance : vertHitDistance;
 	}
-	//////////////////////////////////////////////////////////////////////////////////////
+
+	///////////////////////////////////// 107-111 && 136-142 //////////////////////////////
 	// tan(a)
 	//		 -Y         					 -Y  				 	    	 -Y			
 	//		- | -					 		+ | -		 					- | +
@@ -176,8 +176,8 @@ class Ray {
 	//		  Y  				      	   	  Y                     		  Y
 	//////////////////////////////////////////////////////////////////////////////////////
 	render() {
-		stroke("grey");
-		line(player.x, player.y, player.x + Math.cos(this.angle) * 30, player.y + Math.sin(this.angle) * 30);
+		stroke("purple");
+		line(player.x, player.y, this.wallHitX, this.wallHitY);
 	}
 }
 
@@ -236,16 +236,19 @@ function castRays() {
 
 }
 
+function calculateDistance(x1, y1, x2, y2) {
+	return (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
+}
+
 function update() {
 		player.update();
-//		castRays();
+		castRays();
 }
 
 function draw() {
 	update();
 	grid.render();
-//	for (ray of rays)
-//		ray.render();
+	for (ray of rays)
+		ray.render();
 	player.render();
-	castRays();
 }
