@@ -39,8 +39,8 @@ class Map {
 			for (var j = 0; j < MAP_NUM_COLS; j++) {
 				var tileX = j * TILE_SIZE; 
 				var tileY = i * TILE_SIZE;
-				var tileColor = this.grid[i][j] == 1 ? "#222" : "#fff";
-				stroke("#222");
+				var tileColor = this.grid[i][j] == 1 ? "rgba(123, 96, 154, 1)" : "rgba(220, 189, 255, 1)";
+//				stroke("#222");
 				fill(tileColor);
 				rect(MAP_SCALE * tileX, MAP_SCALE * tileY, MAP_SCALE * TILE_SIZE, MAP_SCALE * TILE_SIZE);
 			}
@@ -73,7 +73,7 @@ class Player {
 	render()
 	{
 		noStroke();
-		fill("green");
+		fill("rgba(112, 80, 149, 1)");
 		circle(MAP_SCALE * this.x, MAP_SCALE * this.y, MAP_SCALE * this.radius);
 	}
 }   
@@ -169,7 +169,7 @@ class Ray {
 	//		  Y  				      	   	  Y                     		  Y
 	//////////////////////////////////////////////////////////////////////////////////////
 	render() {
-		stroke("purple");
+		stroke("rgba(166, 130, 206, 0.77)");
 		line(MAP_SCALE * player.x, MAP_SCALE * player.y, MAP_SCALE * this.wallHitX, MAP_SCALE * this.wallHitY);
 	}
 }
@@ -235,8 +235,9 @@ function render3DWall() {
 		var perpendicularDistance = ray.distance * Math.cos(ray.angle - player.rotationAngel);
 		var distanceToProjection = (WINDOW_WIDTH / 2) / Math.tan(FOV_ANGLE / 2);
 		var wallStripHeight = (TILE_SIZE / perpendicularDistance) * distanceToProjection;
+		var alpha = 170 / perpendicularDistance;
 		noStroke();
-		fill("white");
+		fill("rgba(236, 219, 255, "+ alpha +")");
 		rect(i * WALL_STRIP_WIDTH, (WINDOW_HEIGHT / 2) - (wallStripHeight / 2), WALL_STRIP_WIDTH, wallStripHeight);
 	}
 }
@@ -252,7 +253,8 @@ function update() {
 }
 
 function draw() {
-	clear("212121");
+	clear();
+	background("rgba(195, 179, 214, 1)");
 	update();
 	render3DWall();
 	grid.render();
