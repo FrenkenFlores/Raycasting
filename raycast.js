@@ -106,27 +106,24 @@ class Ray {
 		ystep *= this.pointUp ? -1 : 1; // increment or decrement
 
 		xstep = TILE_SIZE / Math.tan(this.angle);
-        xstep *= (this.pointLeft && xstep > 0) ? -1 : 1; // +x -> -x if ray points up and left
-        xstep *= (this.pointRight && xstep < 0) ? -1 : 1; // -x -> +x if ray points up and right
+		xstep *= (this.pointLeft && xstep > 0) ? -1 : 1; // +x -> -x if ray points up and left
+		xstep *= (this.pointRight && xstep < 0) ? -1 : 1; // -x -> +x if ray points up and right
 
 		var nextHorzTouchX = xintercept;
 		var nextHorzTouchY = yintercept;
 		var horWallHitX = 0;
 		var horWallHitY = 0;
-
-      if (this.pointUp)
-          nextHorzTouchY -= 1;
 		// Increment xstep and ystep until we find a wall
-        while (foundHorWallHit == false) {
-            if (grid.isWall(nextHorzTouchX, nextHorzTouchY)) {
-                foundHorWallHit = true;
-                horWallHitX = nextHorzTouchX;
-                horWallHitY = nextHorzTouchY;
-                break;
-            } else {
-                nextHorzTouchX += xstep;
-                nextHorzTouchY += ystep;
-            }
+		while (foundHorWallHit == false) {
+			if (grid.isWall(nextHorzTouchX, nextHorzTouchY - (this.pointUp ? 1 : 0))) {
+				foundHorWallHit = true;
+				horWallHitX = nextHorzTouchX;
+				horWallHitY = nextHorzTouchY;
+				break;
+			} else {
+				nextHorzTouchX += xstep;
+				nextHorzTouchY += ystep;
+			}
 		}
 		// Find the x-coordinate of the closest vertical grid intersenction
 		xintercept = Math.floor(player.x / TILE_SIZE) * TILE_SIZE; // if a is a float value, floor(a) will take the minimal integer value 
@@ -137,27 +134,24 @@ class Ray {
 		xstep = TILE_SIZE;
 		xstep *= this.pointLeft ? -1 : 1; // increment or decrement
 		ystep = TILE_SIZE * Math.tan(this.angle);
-        ystep *= (this.pointUp && ystep > 0) ? -1 : 1; // +y -> -y if the ray points up and right (go up)
-        ystep *= (this.pointDown && ystep < 0) ? -1 : 1; // -y -> y if the ray points down and left (go down)
+		ystep *= (this.pointUp && ystep > 0) ? -1 : 1; // +y -> -y if the ray points up and right (go up)
+		ystep *= (this.pointDown && ystep < 0) ? -1 : 1; // -y -> y if the ray points down and left (go down)
 
 		var nextVertTouchX = xintercept;
 		var nextVertTouchY = yintercept;
 		var vertWallHitX = 0;
 		var vertWallHitY = 0;
-
-      if (this.pointLeft)
-          nextVertTouchX -= 1;
 		// Increment xstep and ystep until we find a wall
-        while (foundVertWallHit == false) {
-            if (grid.isWall(nextVertTouchX, nextVertTouchY)) {
-                foundVertWallHit = true;
-                vertWallHitX = nextVertTouchX;
-                vertWallHitY = nextVertTouchY;
-                break;
-            } else {
-                nextVertTouchX += xstep;
-                nextVertTouchY += ystep;
-            }
+		while (foundVertWallHit == false) {
+			if (grid.isWall(nextVertTouchX - (this.pointLeft ? 1 : 0), nextVertTouchY)) {
+				foundVertWallHit = true;
+				vertWallHitX = nextVertTouchX;
+				vertWallHitY = nextVertTouchY;
+				break;
+			} else {
+				nextVertTouchX += xstep;
+				nextVertTouchY += ystep;
+			}
 		}
 	// claculate the vertical and the horizontal hit distancise and choose the shortest
 	var horHitDistance = (foundHorWallHit) ? calculateDistance(player.x, player.y, horWallHitX, horWallHitY) : Number.MAX_VALUE;
@@ -167,7 +161,7 @@ class Ray {
 	this.distance = (horHitDistance < vertHitDistance) ? horHitDistance : vertHitDistance;
 	}
 
-	///////////////////////////////////// 107-111 && 136-142 //////////////////////////////
+	/////////////////////////////////////   xstep && ystep	 //////////////////////////////
 	// tan(a)
 	//		 -Y         					 -Y  				 	    	 -Y			
 	//		- | -					 		+ | -		 					- | +
