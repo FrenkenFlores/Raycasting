@@ -6,7 +6,7 @@ const WINDOW_WIDTH = MAP_NUM_COLS * TILE_SIZE;
 const WINDOW_HEIGHT = MAP_NUM_ROWS * TILE_SIZE;
 
 const FOV_ANGLE = 60 * (Math.PI / 180);
-const WALL_STRIP_WIDTH = 20;
+const WALL_STRIP_WIDTH = 1;
 const NUM_RAYS = WINDOW_WIDTH / WALL_STRIP_WIDTH;
 const MAP_SCALE = 0.2;
 
@@ -229,6 +229,19 @@ function castRays() {
 
 }
 
+function render3DWall() {
+	for (var i = 0; i < NUM_RAYS; i++) {
+		var ray = rays[i];
+		var distance = ray.distance;
+		var distanceToProjection = (WINDOW_WIDTH / 2) / Math.tan(FOV_ANGLE / 2);
+		var wallStripHeight = (TILE_SIZE / distance) * distanceToProjection;
+		noStroke();
+		fill("white");
+		rect(i * WALL_STRIP_WIDTH, (WINDOW_WIDTH / 2) - wallStripHeight, WALL_STRIP_WIDTH, wallStripHeight);
+	}
+}
+
+
 function calculateDistance(x1, y1, x2, y2) {
 	return (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
 }
@@ -239,7 +252,9 @@ function update() {
 }
 
 function draw() {
+	clear("212121");
 	update();
+	render3DWall();
 	grid.render();
 	for (ray of rays)
 		ray.render();
