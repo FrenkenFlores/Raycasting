@@ -1,4 +1,4 @@
-const TILE_SIZE = 32;
+const TILE_SIZE = 62;
 const MAP_NUM_ROWS = 11;
 const MAP_NUM_COLS = 15;
 
@@ -8,6 +8,7 @@ const WINDOW_HEIGHT = MAP_NUM_ROWS * TILE_SIZE;
 const FOV_ANGLE = 60 * (Math.PI / 180);
 const WALL_STRIP_WIDTH = 20;
 const NUM_RAYS = WINDOW_WIDTH / WALL_STRIP_WIDTH;
+const MAP_SCALE = 0.2;
 
 class Map {
 	constructor() {
@@ -41,7 +42,7 @@ class Map {
 				var tileColor = this.grid[i][j] == 1 ? "#222" : "#fff";
 				stroke("#222");
 				fill(tileColor);
-				rect(tileX, tileY, TILE_SIZE, TILE_SIZE);
+				rect(MAP_SCALE * tileX, MAP_SCALE * tileY, MAP_SCALE * TILE_SIZE, MAP_SCALE * TILE_SIZE);
 			}
 		}
 	}
@@ -73,9 +74,7 @@ class Player {
 	{
 		noStroke();
 		fill("green");
-		circle(this.x, this.y, this.radius);
-	//	stroke("red");
-	//	line(this.x, this.y, this.x + Math.cos(this.rotationAngel) * 30, this.y + Math.sin(this.rotationAngel) * 30);
+		circle(MAP_SCALE * this.x, MAP_SCALE * this.y, MAP_SCALE * this.radius);
 	}
 }   
 
@@ -171,7 +170,7 @@ class Ray {
 	//////////////////////////////////////////////////////////////////////////////////////
 	render() {
 		stroke("purple");
-		line(player.x, player.y, this.wallHitX, this.wallHitY);
+		line(MAP_SCALE * player.x, MAP_SCALE * player.y, MAP_SCALE * this.wallHitX, MAP_SCALE * this.wallHitY);
 	}
 }
 
