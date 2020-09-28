@@ -53,7 +53,7 @@ class Player {
 	{
 		this.x = WINDOW_WIDTH / 2;
 		this.y = WINDOW_HEIGHT / 2;
-		this.radius = 3;
+		this.radius = 30;
 		this.rotationAngel = Math.PI / 2;
 		this.turnDirection = 0; // +1 : right, -1 : left
 		this.walkDirection = 0; // +1 : forward, -1 : backward
@@ -232,9 +232,9 @@ function castRays() {
 function render3DWall() {
 	for (var i = 0; i < NUM_RAYS; i++) {
 		var ray = rays[i];
-		var distance = ray.distance;
+		var perpendicularDistance = ray.distance * Math.cos(ray.angle - player.rotationAngel);
 		var distanceToProjection = (WINDOW_WIDTH / 2) / Math.tan(FOV_ANGLE / 2);
-		var wallStripHeight = (TILE_SIZE / distance) * distanceToProjection;
+		var wallStripHeight = (TILE_SIZE / perpendicularDistance) * distanceToProjection;
 		noStroke();
 		fill("white");
 		rect(i * WALL_STRIP_WIDTH, (WINDOW_HEIGHT / 2) - (wallStripHeight / 2), WALL_STRIP_WIDTH, wallStripHeight);
