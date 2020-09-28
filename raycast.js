@@ -237,7 +237,7 @@ function render3DWall() {
 		var wallStripHeight = (TILE_SIZE / distance) * distanceToProjection;
 		noStroke();
 		fill("white");
-		rect(i * WALL_STRIP_WIDTH, (WINDOW_WIDTH / 2) - wallStripHeight, WALL_STRIP_WIDTH, wallStripHeight);
+		rect(i * WALL_STRIP_WIDTH, (WINDOW_HEIGHT / 2) - (wallStripHeight / 2), WALL_STRIP_WIDTH, wallStripHeight);
 	}
 }
 
