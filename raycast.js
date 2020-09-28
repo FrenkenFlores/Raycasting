@@ -230,6 +230,17 @@ function castRays() {
 	}
 
 }
+function renderCeiling() {
+    noStroke();
+    fill('rgba(241, 233, 246, 1)');
+    rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT/2);
+}
+
+function renderFloor() {
+    noStroke();
+    fill('rgba(86, 65, 98, 1)');
+    rect(0, WINDOW_HEIGHT/2, WINDOW_WIDTH, WINDOW_HEIGHT)
+}
 
 function render3DWall() {
 	for (var i = 0; i < NUM_RAYS; i++) {
@@ -237,7 +248,7 @@ function render3DWall() {
 		var perpendicularDistance = ray.distance * Math.cos(ray.angle - player.rotationAngel);
 		var distanceToProjection = (WINDOW_WIDTH / 2) / Math.tan(FOV_ANGLE / 2);
 		var wallStripHeight = (TILE_SIZE / perpendicularDistance) * distanceToProjection;
-		var alpha = 170 / perpendicularDistance;
+		var alpha = 1;
 		var colorR = (ray.rayHitVertWall ? 236 : 206); 
 		var colorG = (ray.rayHitVertWall ? 219 : 191);
 		var colorB = (ray.rayHitVertWall ? 255 : 227);
@@ -261,6 +272,8 @@ function draw() {
 	clear();
 	background("rgba(195, 179, 214, 1)");
 	update();
+	renderCeiling();
+    renderFloor();
 	render3DWall();
 	grid.render();
 	for (ray of rays)
