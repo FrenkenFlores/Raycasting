@@ -88,8 +88,9 @@ class Ray {
 		this.pointUp = !this.pointDown;
 		this.pointLeft = this.angle > Math.PI / 2 && this.angle < (Math.PI * 3) / 2;
 		this.pointRight = !this.pointLeft;
+		this.rayHitVertWall = false;
 	}
-	cast(columnId) {
+	cast() {
 		var foundHorWallHit = false;
 		var foundVertWallHit = false;
 		var xstep;
@@ -158,6 +159,7 @@ class Ray {
 	this.wallHitX = (horHitDistance < vertHitDistance) ? horWallHitX : vertWallHitX;
 	this.wallHitY = (horHitDistance < vertHitDistance) ? horWallHitY : vertWallHitY;
 	this.distance = (horHitDistance < vertHitDistance) ? horHitDistance : vertHitDistance;
+	this.rayHitVertWall = (vertHitDistance < horHitDistance) ? true : false;
 	}
 
 	/////////////////////////////////////   xstep && ystep	 //////////////////////////////
@@ -222,7 +224,7 @@ function castRays() {
 	for (columnId = 0; columnId < NUM_RAYS; columnId++)
 	{
 		var ray = new Ray(rayAngle);
-		ray.cast(columnId);
+		ray.cast();
 		rays.push(ray);
 		rayAngle += FOV_ANGLE / NUM_RAYS;
 	}
@@ -236,8 +238,11 @@ function render3DWall() {
 		var distanceToProjection = (WINDOW_WIDTH / 2) / Math.tan(FOV_ANGLE / 2);
 		var wallStripHeight = (TILE_SIZE / perpendicularDistance) * distanceToProjection;
 		var alpha = 170 / perpendicularDistance;
+		var colorR = (ray.rayHitVertWall ? 236 : 206); 
+		var colorG = (ray.rayHitVertWall ? 219 : 191);
+		var colorB = (ray.rayHitVertWall ? 255 : 227);
 		noStroke();
-		fill("rgba(236, 219, 255, "+ alpha +")");
+		fill("rgba("+ colorR +", "+ colorG +", "+ colorB +", "+ alpha +")");
 		rect(i * WALL_STRIP_WIDTH, (WINDOW_HEIGHT / 2) - (wallStripHeight / 2), WALL_STRIP_WIDTH, wallStripHeight);
 	}
 }
